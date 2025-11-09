@@ -4,7 +4,7 @@ import torch.optim as optim
 import random
 import numpy as np
 
-network_width = 1024
+network_width = 2048
 # ------------------------------
 # 2. DQN Model
 # ------------------------------

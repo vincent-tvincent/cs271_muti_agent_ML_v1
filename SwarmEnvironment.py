@@ -45,8 +45,8 @@ class SwarmEnv:
         actions = []
 
         v = 0.0
-        for i in range(5):
-            v += n / 5.0
+        for i in range(10):
+            v += n / 10.0
             for phi in phi_vals:
                 for theta in theta_vals:
                     # Convert spherical to Cartesian
@@ -76,7 +76,7 @@ class SwarmEnv:
             observations.append(np.concatenate([current_position, relative_goal, *nearest]))
         return np.array(observations, dtype=np.float32)
 
-    def step(self, actions):
+    def step(self, actions, error_tolerance=-1):
         # actions: [n_agents] discrete 0-6
         deltas = self.action_set
 
@@ -103,7 +103,12 @@ class SwarmEnv:
         # Reward for reaching goal
         for agent_id in range(self.n_agents):
 
-            if self.done[agent_id] == 0 and np.allclose(self.positions[agent_id], self.goal[agent_id], atol=0.25):
+            if error_tolorance <= 0:
+                reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id])
+            else:
+                reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id], atol=error_tolorance)
+
+            if self.done[agent_id] == 0 and reach_goal:
                 rewards[agent_id] += self.goal_reward
                 self.done[agent_id] = 1
                 if np.sum(self.done) == self.n_agents:
