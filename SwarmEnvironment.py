@@ -5,11 +5,18 @@ import numpy as np
 # ------------------------------
 class SwarmEnv:
     def __init__(self, n_agents=5, space_size=10):
+
+
         self.n_agents = n_agents
         self.space_size = space_size
+
+        # defaults values, ignore these for most case
         self.goal_reward = 1.0
         self.collision_reward = -1.0
         self.distance_reward_factor = 2.0
+        self.visible_neighbor_amount = 10
+
+        self.observation_dimension = 3 + 3 + self.visible_neighbor_amount * 3
 
         self.action_set = np.array([
             [0, 0, 0],
@@ -17,6 +24,12 @@ class SwarmEnv:
             [0, 0.5, 0], [0, -0.5, 0],
             [0, 0, 0.5], [0, 0, -0.5]
         ])
+
+
+
+
+        self.action_amount = self.action_set.shape[0]
+
         self.goal = np.zeros([self.n_agents, 3])
         self.done = np.zeros(self.n_agents)
         self.positions = np.zeros([self.n_agents, 3])
@@ -38,8 +51,8 @@ class SwarmEnv:
             current_position = self.positions[agent_id]
             relative_goal = self.goal[agent_id] - current_position
             distances = np.linalg.norm(self.positions - current_position, axis=1)
-            nearest = self.positions[np.argsort(distances)[1]] - current_position  # skip itself
-            observations.append(np.concatenate([current_position, relative_goal, nearest]))
+            nearest = self.positions[np.argsort(distances)[1:self.visible_neighbor_amount + 1]] - current_position  # skip itself
+            observations.append(np.concatenate([current_position, relative_goal, *nearest]))
         return np.array(observations, dtype=np.float32)
 
     def step(self, actions):
