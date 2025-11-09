@@ -22,6 +22,8 @@ class DQN(nn.Module):
             nn.ReLU(),
             nn.Linear(network_width, network_width),
             nn.ReLU(),
+            nn.Linear(network_width, network_width),
+            nn.ReLU(),
             nn.Linear(network_width, action_dim)
         )
 

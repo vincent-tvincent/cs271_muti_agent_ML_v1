@@ -62,7 +62,7 @@ class SwarmEnv:
 
     def reset(self):
         self.done = np.zeros(self.n_agents)
-        self.positions = np.random.randint(0, self.space_size // 2, (self.n_agents, 3))
+        self.positions = np.random.randint(0, self.space_size, (self.n_agents, 3))
         return self._observing_environment()
 
     def _observing_environment(self):
@@ -103,10 +103,10 @@ class SwarmEnv:
         # Reward for reaching goal
         for agent_id in range(self.n_agents):
 
-            if error_tolorance <= 0:
+            if error_tolerance <= 0:
                 reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id])
             else:
-                reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id], atol=error_tolorance)
+                reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id], atol=error_tolerance)
 
             if self.done[agent_id] == 0 and reach_goal:
                 rewards[agent_id] += self.goal_reward
