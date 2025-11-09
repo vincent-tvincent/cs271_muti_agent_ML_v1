@@ -4,7 +4,7 @@ import torch.optim as optim
 import random
 import numpy as np
 
-
+network_width = 1024
 # ------------------------------
 # 2. DQN Model
 # ------------------------------
@@ -12,15 +12,17 @@ class DQN(nn.Module):
     def __init__(self, input_dim, action_dim):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(input_dim, 128),
+            nn.Linear(input_dim, network_width),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(network_width, network_width),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(network_width, network_width),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(network_width, network_width),
             nn.ReLU(),
-            nn.Linear(128, action_dim)
+            nn.Linear(network_width, network_width),
+            nn.ReLU(),
+            nn.Linear(network_width, action_dim)
         )
 
     def forward(self, x):
