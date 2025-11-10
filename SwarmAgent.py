@@ -52,6 +52,9 @@ class Agent:
         self.batch_size = 64
         self.epsilon = 1.0
 
+    def epsilon_decay(self, epsilon_min, epsilon_decay):
+        self.epsilon = max(epsilon_min, self.epsilon * epsilon_decay)
+
     def select_action(self, state):
         if random.random() < self.epsilon:
             return random.randint(0, 6)

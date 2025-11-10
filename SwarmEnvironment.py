@@ -12,6 +12,7 @@ class SwarmEnv:
 
         # defaults values, ignore these for most case
         self.goal_reward = 1.0
+        self.non_goal_reward = 0.0
         self.collision_reward = -1.0
         self.distance_reward_factor = 2.0
         self.visible_neighbor_amount = visible_neighbor_amount
@@ -106,15 +107,16 @@ class SwarmEnv:
             if error_tolerance <= 0:
                 reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id])
             else:
-                reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id], atol=error_tolerance)
+                reach_goal = np.abs(np.linalg.norm(self.goal[agent_id] - self.positions[agent_id])) <= error_tolerance
 
             if self.done[agent_id] == 0 and reach_goal:
                 rewards[agent_id] += self.goal_reward
                 self.done[agent_id] = 1
                 if np.sum(self.done) == self.n_agents:
                     done = True
-            else: # reward for approaching goal
-                rewards[agent_id] += (np.linalg.norm(observations_before_move[agent_id][3:6]) - np.linalg.norm(observations_after_move[agent_id][3:6])) * self.distance_reward_factor
+            else: # reward for approaching goal and penalty for not at goal
+                rewards[agent_id] += self.non_goal_reward
+                rewards[agent_id] += (np.linalg.norm(observations_before_move[agent_id][3:6] - observations_after_move[agent_id][3:6])) * self.distance_reward_factor
                 # print(rewards[agent_id])
 
         # Penalty for collisions
@@ -123,7 +125,8 @@ class SwarmEnv:
                 if error_tolerance <= 0:
                     collision_occured = np.allclose(self.positions[agent_id], self.positions[another_agent_id])
                 else:
-                    collision_occured = np.allclose(self.positions[agent_id], self.positions[another_agent_id], atol=error_tolerance)
+                    collision_occured = np.abs(np.linalg.norm(self.positions[agent_id] - self.positions[another_agent_id])) <= error_tolerance
+                    # print(np.linalg.norm(self.positions[agent_id]) - np.linalg.norm(self.positions[another_agent_id]))
                 if collision_occured:
                     rewards[agent_id] += self.collision_reward
                     rewards[another_agent_id] += self.collision_reward
