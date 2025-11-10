@@ -120,9 +120,12 @@ class SwarmEnv:
         # Penalty for collisions
         for agent_id in range(self.n_agents):
             for another_agent_id in range(agent_id + 1, self.n_agents):
-                if np.array_equal(next_positions[agent_id], next_positions[another_agent_id]):
+                if error_tolerance <= 0:
+                    collision_occured = np.allclose(self.positions[agent_id], self.positions[another_agent_id])
+                else:
+                    collision_occured = np.allclose(self.positions[agent_id], self.positions[another_agent_id], atol=error_tolerance)
+                if collision_occured:
                     rewards[agent_id] += self.collision_reward
                     rewards[another_agent_id] += self.collision_reward
-
 
         return self._observing_environment(), rewards, done, {}
