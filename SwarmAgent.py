@@ -4,7 +4,7 @@ import torch.optim as optim
 import random
 import numpy as np
 
-network_width = 2048
+network_width = 516
 # ------------------------------
 # 2. DQN Model
 # ------------------------------
@@ -52,6 +52,9 @@ class Agent:
         self.batch_size = 64
         self.epsilon = 1.0
 
+        if self.device.type == "cuda":
+            self.scaler = torch.cuda.amp.GradScaler()
+
     def epsilon_decay(self, epsilon_min, epsilon_decay):
         self.epsilon = max(epsilon_min, self.epsilon * epsilon_decay)
 
@@ -87,25 +90,44 @@ class Agent:
         if len(self.replay) > 10000:
             self.replay.pop(0)
 
-    def train_step(self):
-        if len(self.replay) < self.batch_size:
+    def train_step(self, done=False):
+        if len(self.replay) < self.batch_size and not done:
             return
 
         batch = random.sample(self.replay, self.batch_size)
         s, a, r, s2 = zip(*batch)
+
         s = torch.tensor(s, dtype=torch.float32, device=self.device)
         a = torch.tensor(a, dtype=torch.int64, device=self.device).unsqueeze(1)
         r = torch.tensor(r, dtype=torch.float32, device=self.device).unsqueeze(1)
         s2 = torch.tensor(s2, dtype=torch.float32, device=self.device)
 
-        q = self.model(s).gather(1, a)
-        with torch.no_grad():
-            q_target = r + self.gamma * self.target(s2).max(1, keepdim=True)[0]
+        if self.device.type == "cuda":
+            with torch.no_grad():
+                q_target = r + self.gamma * self.target(s2).max(1, keepdim=True)[0]
 
-        loss = nn.functional.mse_loss(q, q_target)
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+            with torch.cuda.amp.autocast():
+                q = self.model(s).gather(1, a)
+                loss = nn.functional.mse_loss(q, q_target)
+
+            self.optimizer.zero_grad()
+
+            self.scaler.scale(loss).backward()
+            self.scaler.step(self.optimizer)
+
+            self.scaler.update()
+
+        else:
+            q = self.model(s).gather(1, a)
+            with torch.no_grad():
+                q_target = r + self.gamma * self.target(s2).max(1, keepdim=True)[0]
+
+            loss = nn.functional.mse_loss(q, q_target)
+
+            self.optimizer.zero_grad()
+
+            loss.backward()
+            self.optimizer.step()
 
     def update_target(self):
         self.target.load_state_dict(self.model.state_dict())
