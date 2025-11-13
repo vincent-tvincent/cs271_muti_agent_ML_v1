@@ -27,23 +27,24 @@ if load_model:
 print(env.action_amount)
 
 
-agent.gamma = 0.95 # q learning gamma, learning rate
+agent.gamma = 0.9 # q learning gamma, learning rate
 agent.epsilon = 1.0 # action randomness 1 for fully random
-agent.batch_size = 128
+agent.batch_size = 256
 
-training_steps = 1024
+training_steps = 2048
 episodes_length = 1024
 
 epsilon_decay = 0.999 # action randomness decay rate
 epsilon_decay_accelerating_factor = 0.99
 epsilon_min = 0.05 # minimum epsilon
 
-env.non_goal_reward = -1.0
-env.stop_reward = -50.0
-env.goal_reward = 500.0
-env.collision_reward = -100.0
+env.non_goal_reward = -50.0
+env.stop_reward = -5.0
+env.goal_reward = 50000.0
+env.collision_reward = -5.0
 
 env.distance_reward_factor = 5.0 / linear_displacement # how much nearest neighbor evey agent can visit
+env.z_reward_factor = -500.0 / linear_displacement
 
 total_rewards = np.zeros(training_steps)
 epsilons = np.zeros(training_steps)

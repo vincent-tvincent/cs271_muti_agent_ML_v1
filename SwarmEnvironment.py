@@ -15,6 +15,7 @@ class SwarmEnv:
         self.stop_reward = 0.0
         self.collision_reward = -1.0
         self.distance_reward_factor = 2.0
+        self.z_reward_factor = 0.0
         self.visible_neighbor_amount = visible_neighbor_amount
 
         self.observation_dimension = 3 + 3 + self.visible_neighbor_amount * 3
@@ -86,7 +87,7 @@ class SwarmEnv:
         # for agent_id in range(self.n_agents):
         #     if self.done[agent_id] == 1:
         #         actions[agent_id] = 0
-        actions[self.done == 1] = 0
+        # actions[self.done == 1] = 0
 
         next_positions = self.positions + deltas[actions]
         next_positions = np.clip(next_positions, 0, self.space_size - 1)
@@ -112,25 +113,36 @@ class SwarmEnv:
                 # print(np.linalg.norm(self.goal[agent_id] - self.positions[agent_id]))
                 # reach_goal = np.linalg.norm(self.goal[agent_id] - self.positions[agent_id]) <= error_tolerance
                 reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id], atol=error_tolerance)
-            if self.done[agent_id] == 0 and reach_goal:
-                self.done_count += 1
-                rewards[agent_id] += self.goal_reward
-                # print(self.goal_reward)
-                self.done[agent_id] = 1
-                if np.sum(self.done) == self.n_agents:
+
+            if reach_goal:
+
+                if (self.done[agent_id] == 0):
+                    rewards[agent_id] += self.goal_reward
+                    # print(self.goal_reward)
+                    self.done[agent_id] = 1
+                self.done_count = np.sum(self.done)
+                if self.done_count == self.n_agents:
                     done = True
             else: # reward for approaching goal and penalty for not at goal
-                displacement_vector = observations_before_move[agent_id][3:6] - observations_after_move[agent_id][3:6]
-                reference_unit_vector = observations_before_move[agent_id][3:6] / (np.linalg.norm(observations_before_move[agent_id][3:6]) + 1e-8)
-                progress_value = np.dot(reference_unit_vector, displacement_vector)
-                # progress_value = progress_value if progress_value > 0.0 else 0.0
-                rewards[agent_id] +=   progress_value * self.distance_reward_factor
-                # rewards[agent_id] += np.mean(displacement_vector) * self.distance_reward_factor
+                if (self.done[agent_id] == 1):
+                    self.done[agent_id] = 0
+                    rewards[agent_id] -= self.goal_reward
+                    self.done_count = np.sum(self.done)
+                else:
+                    displacement_vector = observations_before_move[agent_id][3:6] - observations_after_move[agent_id][3:6]
+                    reference_unit_vector = observations_before_move[agent_id][3:6] / (
+                                np.linalg.norm(observations_before_move[agent_id][3:6]) + 1e-8)
+                    progress_value = np.dot(reference_unit_vector, displacement_vector)
+                    # progress_value = progress_value if progress_value > 0.0 else 0.0
+                    rewards[agent_id] += progress_value * self.distance_reward_factor
+                    # rewards[agent_id] += np.mean(displacement_vector) * self.distance_reward_factor
 
-                # rewards[agent_id] += - displacement_vector[2] * self.distance_reward_factor
-                rewards[agent_id] += self.non_goal_reward
-                if (actions[agent_id] == 0 and self.done[agent_id] == 0): rewards[agent_id] += self.stop_reward
-                # print(rewards[agent_id])
+                    rewards[agent_id] += np.abs(displacement_vector[2]) * self.z_reward_factor
+                    rewards[agent_id] += self.non_goal_reward
+                    if (actions[agent_id] == 0): rewards[agent_id] += self.stop_reward
+                    # print(rewards[agent_id])
+
+
 
         # Penalty for collisions
         for agent_id in range(self.n_agents):
