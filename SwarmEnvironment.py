@@ -4,7 +4,7 @@ import numpy as np
 # 1. Simple 3D Swarm Environment
 # ------------------------------
 class SwarmEnv:
-    def __init__(self, n_agents=5, space_size=10, angular_displacement=22.5, linear_displacement=5.0, visible_neighbor_amount=10):
+    def __init__(self, n_agents=5, space_size=10, linear_displacement=5.0, visible_neighbor_amount=10):
 
         self.n_agents = n_agents
         self.space_size = space_size
@@ -14,15 +14,18 @@ class SwarmEnv:
         self.non_goal_reward = 0.0
         self.stop_reward = 0.0
         self.collision_reward = -1.0
+        self.episode_reward = 0.0
+
         self.distance_reward_factor = 2.0
-        self.z_reward_factor = 0.0
+
+
         self.visible_neighbor_amount = visible_neighbor_amount
+
 
         self.observation_dimension = 3 + 3 + self.visible_neighbor_amount * 3
 
-        self.angular_displacement = angular_displacement
         self.linear_displacement = linear_displacement
-        self.action_set = self._generate_action_set(n=self.linear_displacement, d=self.angular_displacement, degrees=True)
+        self.action_set = self._generate_action_set(n=self.linear_displacement)
         # print(self.action_set)
 
         self.action_amount = self.action_set.shape[0]
@@ -35,28 +38,17 @@ class SwarmEnv:
         self._observing_environment()
         self.reset()
 
-    def _generate_action_set(self, n=1.0, d=5.0, degrees=True):
+    def _generate_action_set(self, n=1.0):
+        return np.array([
+            [0,0,0],
+            [n,0,0],
+            [0,n,0],
+            [0,0,n],
+            [-n,0,0],
+            [0,-n,0],
+            [0,0,-n],
+        ])
 
-        if degrees:
-            d = np.deg2rad(d)
-
-        theta_vals = np.arange(0, 2 * np.pi, d)
-        phi_vals = np.arange(0, np.pi + d, d)
-
-        actions = []
-
-        v = 0.0
-        d = 1.0
-        for i in range(int(d)):
-            v += n / d
-            for phi in phi_vals:
-                for theta in theta_vals:
-                    # Convert spherical to Cartesian
-                    x = n * np.sin(phi) * np.cos(theta)
-                    y = n * np.sin(phi) * np.sin(theta)
-                    z = n * np.cos(phi)
-                    actions.append([x, y, z])
-        return np.array(actions)
 
 
     def set_random_goals(self):
@@ -84,10 +76,8 @@ class SwarmEnv:
         # actions: [n_agents] discrete 0-6
         deltas = self.action_set
 
-        # for agent_id in range(self.n_agents):
-        #     if self.done[agent_id] == 1:
-        #         actions[agent_id] = 0
-        # actions[self.done == 1] = 0
+
+        actions[self.done == 1] = 0
 
         next_positions = self.positions + deltas[actions]
         next_positions = np.clip(next_positions, 0, self.space_size - 1)
@@ -106,6 +96,7 @@ class SwarmEnv:
 
         # Reward for reaching goal
         for agent_id in range(self.n_agents):
+            rewards[agent_id] += self.episode_reward
 
             if error_tolerance <= 0:
                 reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id])
@@ -124,23 +115,20 @@ class SwarmEnv:
                 if self.done_count == self.n_agents:
                     done = True
             else: # reward for approaching goal and penalty for not at goal
-                if (self.done[agent_id] == 1):
-                    self.done[agent_id] = 0
-                    rewards[agent_id] -= self.goal_reward
-                    self.done_count = np.sum(self.done)
-                else:
-                    displacement_vector = observations_before_move[agent_id][3:6] - observations_after_move[agent_id][3:6]
-                    reference_unit_vector = observations_before_move[agent_id][3:6] / (
-                                np.linalg.norm(observations_before_move[agent_id][3:6]) + 1e-8)
-                    progress_value = np.dot(reference_unit_vector, displacement_vector)
-                    # progress_value = progress_value if progress_value > 0.0 else 0.0
-                    rewards[agent_id] += progress_value * self.distance_reward_factor
-                    # rewards[agent_id] += np.mean(displacement_vector) * self.distance_reward_factor
+                goal_vector_displacement = observations_before_move[agent_id][3:6] - observations_after_move[agent_id][
+                    3:6]
+                reference_unit_vector = observations_before_move[agent_id][3:6] / (
+                        np.linalg.norm(observations_before_move[agent_id][3:6]) + 1e-8)
+                progress_value = np.dot(reference_unit_vector, goal_vector_displacement)
 
-                    rewards[agent_id] += np.abs(displacement_vector[2]) * self.z_reward_factor
-                    rewards[agent_id] += self.non_goal_reward
-                    if (actions[agent_id] == 0): rewards[agent_id] += self.stop_reward
-                    # print(rewards[agent_id])
+                progress_value = progress_value if progress_value < 0.0 else 0.0
+                rewards[agent_id] += progress_value * self.distance_reward_factor
+                # rewards[agent_id] += np.mean(displacement_vector) * self.distance_reward_factor
+
+                rewards[agent_id] += self.non_goal_reward
+                if (actions[agent_id] == 0): rewards[agent_id] += self.stop_reward
+                # print(rewards[agent_id])
+
 
 
 
