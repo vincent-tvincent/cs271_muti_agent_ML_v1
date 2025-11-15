@@ -1,5 +1,15 @@
 ### note 12/11
 agent prefer to stack on the top of the space for prevent collision, need to eliminate it's way to gain high score without reaching goal
+### note 15/11
+agents influence by is neighbor's behavior, two tasks todo: 1. add neighbor's goal to its observation 2. replace the environment step to matrix operations for speed up training
+
+### note office hour 15/11
+0. 3 4 agents work is for milestone 1
+1. some agent close, stop one of them 
+2. stop is ok 
+3. reduce the neighbors to 1 closest (which is also the closest obsticle distance)
+4. do the minimum scale of training, log how the action being and see if it select actions as intended
+5. the agents should have ability to move around 
 
 ![Swarm animation](swarm_simulation_normal.gif)
 

@@ -26,4 +26,4 @@ agent = Agent(state_dim=env.observation_dimension, action_dim=env.action_amount,
 agent.model.load_state_dict(torch.load("swarm_agent_model.pth"))
 agent.target.load_state_dict(torch.load("swarm_target_model.pth"))
 
-visualize_swarm(agent, env, steps=2000, save=True, error_tolerance=error_tolerance)
+visualize_swarm(agent, env, steps=500, save=True, error_tolerance=error_tolerance)

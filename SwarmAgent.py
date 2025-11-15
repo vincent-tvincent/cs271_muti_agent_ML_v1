@@ -46,7 +46,7 @@ class Agent:
         self.model = DQN(state_dim, action_dim).to(device)
         self.target = DQN(state_dim, action_dim).to(device)
         self.target.load_state_dict(self.model.state_dict())
-        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=5e-5)
         self.replay = []
         self.gamma = 0.95
         self.batch_size = 64
