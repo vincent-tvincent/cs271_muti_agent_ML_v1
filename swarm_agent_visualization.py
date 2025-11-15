@@ -102,7 +102,7 @@ def visualize_swarm(agent, env, steps=50, save=False, interval=10, error_toleran
 
         if save:
             filename = f"swarm_simulation_{view_name.lower()}.gif"
-            ani.save(filename, writer='pillow')
+            ani.save(filename, writer='ffmpeg')
             print(f"✅ Saved {filename}")
         else:
             plt.show()

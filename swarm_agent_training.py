@@ -45,7 +45,7 @@ env.goal_reward = 20.0
 env.collision_reward = -100.0
 env.episode_reward = -5.0
 
-env.distance_reward_factor = 5.0 / linear_displacement # how much nearest neighbor evey agent can visit
+env.distance_reward_factor = 10.0 / linear_displacement # how much nearest neighbor evey agent can visit
 
 total_rewards = np.zeros(training_steps)
 epsilons = np.zeros(training_steps)
@@ -81,7 +81,7 @@ for episode in range(training_steps):
 
        # End early if environment finishes
        if done:
-           episodes_length = step + 1
+           # episodes_length = step + 1
            agent.train_step(done)
            break
 
