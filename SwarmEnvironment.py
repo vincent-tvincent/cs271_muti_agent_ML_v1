@@ -94,7 +94,7 @@ class SwarmEnv:
         rewards = np.zeros(self.n_agents)
         done = False
 
-        rewards += self.episode_reward
+        # rewards += self.episode_reward
 
         # Reward for reaching goal
         for agent_id in range(self.n_agents):
@@ -126,8 +126,8 @@ class SwarmEnv:
                 rewards[agent_id] += progress_value * self.distance_reward_factor
                 # rewards[agent_id] += np.mean(displacement_vector) * self.distance_reward_factor
 
-                rewards[agent_id] += self.non_goal_reward
-                if (actions[agent_id] == 0): rewards[agent_id] += self.stop_reward
+                # rewards[agent_id] += self.non_goal_reward
+                # if (actions[agent_id] == 0): rewards[agent_id] += self.stop_reward
                 # print(rewards[agent_id])
 
 
