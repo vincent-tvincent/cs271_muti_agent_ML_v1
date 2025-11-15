@@ -29,22 +29,23 @@ print(env.action_amount)
 
 agent.gamma = 0.999 # q learning gamma
 agent.epsilon = 1.0 # action randomness 1 for fully random
-agent.batch_size = 256
+agent.batch_size = 128
+agent.replay_buffer_size = 1000000
 
-training_steps = 2048
-episodes_length = 1024
+training_steps = 4096
+episodes_length = 2048
 
-epsilon_decay = 0.999 # action randomness decay rate
+epsilon_decay = 0.99 # action randomness decay rate
 
-epsilon_min = 0.05 # minimum epsilon
+epsilon_min = 0.1 # minimum epsilon
 
-env.non_goal_reward = -50.0
-env.stop_reward = -10.0
-env.goal_reward = 100.0
-env.collision_reward = -200.0
-env.episode_reward = -20.0
+env.non_goal_reward = -10.0
+env.stop_reward = -1.0
+env.goal_reward = 20.0
+env.collision_reward = -100.0
+env.episode_reward = -5.0
 
-env.distance_reward_factor = 10.0 / linear_displacement # how much nearest neighbor evey agent can visit
+env.distance_reward_factor = 5.0 / linear_displacement # how much nearest neighbor evey agent can visit
 
 total_rewards = np.zeros(training_steps)
 epsilons = np.zeros(training_steps)
@@ -80,6 +81,7 @@ for episode in range(training_steps):
 
        # End early if environment finishes
        if done:
+           episodes_length = step + 1
            agent.train_step(done)
            break
 
@@ -94,6 +96,12 @@ for episode in range(training_steps):
     print(f"Episode {episode + 1}, steps {step + 1:.0f} (done: {env.done_count/n_agents * 100.0:.3f}% collision: {env.collision_count:.0f}), Average total reward {total_reward:.5f}, epsilon {agent.epsilon:.5f} time {delta_time:.5f}s")
 
     agent.epsilon_decay(epsilon_min, epsilon_decay)
+
+    if float(episode + 1) % (512.0) == 0 and step != 0:
+        print("save checkpoint")
+        torch.save(agent.model.state_dict(), "swarm_agent_model.pth")
+        torch.save(agent.target.state_dict(), "swarm_target_model.pth")
+
 
 # Save model weights
 torch.save(agent.model.state_dict(), "swarm_agent_model.pth")

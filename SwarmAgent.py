@@ -46,11 +46,13 @@ class Agent:
         self.model = DQN(state_dim, action_dim).to(device)
         self.target = DQN(state_dim, action_dim).to(device)
         self.target.load_state_dict(self.model.state_dict())
-        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-3)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4)
         self.replay = []
         self.gamma = 0.95
         self.batch_size = 64
         self.epsilon = 1.0
+
+        self.replay_buffer_size = 100000
 
         if self.device.type == "cuda":
             self.scaler = torch.cuda.amp.GradScaler()
@@ -87,13 +89,12 @@ class Agent:
 
     def store(self, s, a, r, s2):
         self.replay.append((s, a, r, s2))
-        if len(self.replay) > 10000:
+        if len(self.replay) > self.replay_buffer_size:
             self.replay.pop(0)
 
     def train_step(self, done=False):
         if len(self.replay) < self.batch_size and not done:
             return
-
         batch = random.sample(self.replay, self.batch_size)
         s, a, r, s2 = zip(*batch)
 

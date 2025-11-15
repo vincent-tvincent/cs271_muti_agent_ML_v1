@@ -94,10 +94,11 @@ class SwarmEnv:
         rewards = np.zeros(self.n_agents)
         done = False
 
+        rewards += self.episode_reward
+
         # Reward for reaching goal
         for agent_id in range(self.n_agents):
-            rewards[agent_id] += self.episode_reward
-
+            # rewards[agent_id] += self.episode_reward
             if error_tolerance <= 0:
                 reach_goal = np.allclose(self.positions[agent_id], self.goal[agent_id])
             else:
@@ -121,7 +122,7 @@ class SwarmEnv:
                         np.linalg.norm(observations_before_move[agent_id][3:6]) + 1e-8)
                 progress_value = np.dot(reference_unit_vector, goal_vector_displacement)
 
-                progress_value = progress_value if progress_value < 0.0 else 0.0
+                # progress_value = progress_value if progress_value > 0.0 else 0.0
                 rewards[agent_id] += progress_value * self.distance_reward_factor
                 # rewards[agent_id] += np.mean(displacement_vector) * self.distance_reward_factor
 
