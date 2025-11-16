@@ -4,7 +4,7 @@ import torch.optim as optim
 import random
 import numpy as np
 
-network_width = 516
+network_width = 512
 # ------------------------------
 # 2. DQN Model
 # ------------------------------
@@ -13,17 +13,17 @@ class DQN(nn.Module):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(0.01), #using LeakyReLu because inputs can have negative values
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(0.01),
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(0.01),
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(0.01),
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(0.01),
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(0.01),
             nn.Linear(network_width, action_dim)
         )
 
@@ -40,33 +40,37 @@ available_device = torch.device(
 )
 
 class Agent:
-    def __init__(self, state_dim, action_dim, device=available_device):
+    def __init__(self, state_dim, action_dim, max_coord, device=available_device):
         print("using device : ", device)
         self.device = device
         self.model = DQN(state_dim, action_dim).to(device)
         self.target = DQN(state_dim, action_dim).to(device)
         self.target.load_state_dict(self.model.state_dict())
-        self.optimizer = optim.Adam(self.model.parameters(), lr=5e-5)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-3)
         self.replay = []
-        self.gamma = 0.95
+        self.gamma = 0.995
         self.batch_size = 64
+        self.tau = 0.005
         self.epsilon = 1.0
-
-        self.replay_buffer_size = 100000
-
-        if self.device.type == "cuda":
-            self.scaler = torch.cuda.amp.GradScaler()
-
-    def epsilon_decay(self, epsilon_min, epsilon_decay):
-        self.epsilon = max(epsilon_min, self.epsilon * epsilon_decay)
+        self.action_dim = action_dim
+        self.max_coord = max_coord
+        self.replay_buffer_size = 10000
+        
+    #i normalized the coordinates as they get put into the agent. probably not necessary, but now that ive done it, no reason to undo it.
+    def normalize_states(self, states_np):
+        normalized_states = states_np[:, 3:].copy()
+        normalized_states = normalized_states / self.max_coord
+        return normalized_states
 
     def select_action(self, state):
         if random.random() < self.epsilon:
-            return random.randint(0, 6)
+            return random.randint(0, self.action_dim - 1) #random.randint is inclusive of the upper bound
 
-        state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+        state_batch = np.expand_dims(state, axis=0)
+        normalized_state_batch = self.normalize_states(state_batch)
+        state_tensor = torch.tensor(normalized_state_batch, dtype=torch.float32, device=self.device).unsqueeze(0)
         with torch.no_grad():
-            q = self.model(state)
+            q = self.model(state_tensor)
 
         return q.argmax().item()
 
@@ -74,9 +78,10 @@ class Agent:
 
         # Random exploration for all agents at once
         if random.random() < self.epsilon:
-            return np.random.randint(0, 7, size=len(states))
+            return np.random.randint(0, self.action_dim, size=len(states)) #np.random.randint is exclusive of the upper bound
 
         # Convert all states into one GPU/MPS tensor batch
+        states = self.normalize_states(states)
         states = torch.tensor(states, dtype=torch.float32, device=self.device)
 
         # Forward pass through model (batch inference)
@@ -92,43 +97,35 @@ class Agent:
         if len(self.replay) > self.replay_buffer_size:
             self.replay.pop(0)
 
-    def train_step(self, done=False):
-        if len(self.replay) < self.batch_size and not done:
+    def train_step(self):
+        if len(self.replay) < self.batch_size:
             return
-        batch = random.sample(self.replay, self.batch_size)
-        s, a, r, s2 = zip(*batch)
 
-        s = torch.tensor(s, dtype=torch.float32, device=self.device)
+        batch = random.sample(self.replay, self.batch_size)
+        s_list, a, r, s2_list = zip(*batch)
+        s_np = np.array(s_list)
+        s2_np = np.array(s2_list)
+
+        s_normalized = self.normalize_states(s_np)
+        s2_normalized = self.normalize_states(s2_np)
+
+        s = torch.tensor(s_normalized, dtype=torch.float32, device=self.device)
         a = torch.tensor(a, dtype=torch.int64, device=self.device).unsqueeze(1)
         r = torch.tensor(r, dtype=torch.float32, device=self.device).unsqueeze(1)
-        s2 = torch.tensor(s2, dtype=torch.float32, device=self.device)
+        s2 = torch.tensor(s2_normalized, dtype=torch.float32, device=self.device)
 
-        if self.device.type == "cuda":
-            with torch.no_grad():
-                q_target = r + self.gamma * self.target(s2).max(1, keepdim=True)[0]
+        q = self.model(s).gather(1, a)
+        with torch.no_grad():
+            q_target = r + self.gamma * self.target(s2).max(1, keepdim=True)[0]
 
-            with torch.cuda.amp.autocast():
-                q = self.model(s).gather(1, a)
-                loss = nn.functional.mse_loss(q, q_target)
-
-            self.optimizer.zero_grad()
-
-            self.scaler.scale(loss).backward()
-            self.scaler.step(self.optimizer)
-
-            self.scaler.update()
-
-        else:
-            q = self.model(s).gather(1, a)
-            with torch.no_grad():
-                q_target = r + self.gamma * self.target(s2).max(1, keepdim=True)[0]
-
-            loss = nn.functional.mse_loss(q, q_target)
-
-            self.optimizer.zero_grad()
-
-            loss.backward()
-            self.optimizer.step()
+        loss = nn.functional.mse_loss(q, q_target)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
     def update_target(self):
-        self.target.load_state_dict(self.model.state_dict())
+        """Performs soft update of the target network's weights."""
+        for target_param, model_param in zip(self.target.parameters(), self.model.parameters()):
+            target_param.data.copy_(
+                self.tau * model_param.data + (1.0 - self.tau) * target_param.data
+            )
