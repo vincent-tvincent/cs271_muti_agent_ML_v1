@@ -1,4 +1,5 @@
-
+import os
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 import time
 
 import torch
@@ -17,11 +18,12 @@ visible_neighbor_amount = 1
 goal_error_tolerance = 1 # to goal
 collision_error_tolerance = 0.7
 linear_displacement = 0.5
+angular_displacement = 30
 
 
-env = SwarmEnv(n_agents=n_agents, space_size=space_size, linear_displacement=linear_displacement, visible_neighbor_amount=visible_neighbor_amount)
+env = SwarmEnv(n_agents=n_agents, space_size=space_size, linear_displacement=linear_displacement, angular_displacement=angular_displacement, visible_neighbor_amount=visible_neighbor_amount)
 env.set_random_goals()
-agent = Agent(state_dim=env.observation_dimension, action_dim=env.action_amount, device=manual_selected_device)
+agent = Agent(state_dim=env.observation_dimension-3, action_dim=env.action_amount, max_coord = space_size, device=manual_selected_device)
 if load_model:
     agent.model.load_state_dict(torch.load("swarm_agent_model.pth"))
     agent.target.load_state_dict(torch.load("swarm_target_model.pth"))
@@ -58,4 +60,4 @@ agent.target.eval()
 # agent.model.load_state_dict(torch.load("swarm_agent_model.pth"))
 # agent.target.load_state_dict(torch.load("swarm_target_model.pth"))
 
-visualize_swarm(agent, env, steps=500, save=True, goal_error_tolerance=goal_error_tolerance, collision_error_tolerance = collision_error_tolerance)
+visualize_swarm(agent, env, steps=500, save=False, goal_error_tolerance=goal_error_tolerance, collision_error_tolerance = collision_error_tolerance)

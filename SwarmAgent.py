@@ -13,17 +13,17 @@ class DQN(nn.Module):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, network_width),
-            nn.LeakyReLU(0.01), #using LeakyReLu because inputs can have negative values
+            nn.ReLU(),
             nn.Linear(network_width, network_width),
-            nn.LeakyReLU(0.01),
+            nn.ReLU(),
             nn.Linear(network_width, network_width),
-            nn.LeakyReLU(0.01),
+            nn.ReLU(),
             nn.Linear(network_width, network_width),
-            nn.LeakyReLU(0.01),
+            nn.ReLU(),
             nn.Linear(network_width, network_width),
-            nn.LeakyReLU(0.01),
+            nn.ReLU(),
             nn.Linear(network_width, network_width),
-            nn.LeakyReLU(0.01),
+            nn.ReLU(),
             nn.Linear(network_width, action_dim)
         )
 
@@ -56,9 +56,10 @@ class Agent:
         self.max_coord = max_coord
         self.replay_buffer_size = 10000
         
-    #i normalized the coordinates as they get put into the agent. probably not necessary, but now that ive done it, no reason to undo it.
+    #i normalized the coordinates as they get put into the agent, im not sure its necessary or helpful at all but i did it anyway
+    
     def normalize_states(self, states_np):
-        normalized_states = states_np[:, 3:].copy()
+        normalized_states = states_np[:, 3:].copy() #also removed the agent's position coordinates from the input, because they dont actually correlate with any reward so maybe model gets confused what to do with these values
         normalized_states = normalized_states / self.max_coord
         return normalized_states
 
