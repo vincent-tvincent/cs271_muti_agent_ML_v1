@@ -8,7 +8,9 @@ import numpy
 # ------------------------------
 # 4. Training Loop
 # ------------------------------
-# numpy.random.seed(20)
+
+numpy.random.seed(20)   # we need the random seed to be fixed so that other people can reproduce your exact training result
+                        # so that they know you are not lying
 manual_selected_device = "cuda"
 
 n_agents = 10
@@ -37,7 +39,7 @@ env.distance_reward_factor = 25
 env.step_reward = -0.2
 
 training_steps = 1000
-episodes_length = 300
+episodes_length = 200
 
 total_rewards = np.zeros(training_steps)
 epsilons = np.zeros(training_steps)

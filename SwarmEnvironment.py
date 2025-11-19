@@ -45,7 +45,7 @@ class SwarmEnv:
         theta_vals = np.arange(0, 2 * np.pi, d)
         phi_vals = np.arange(0, np.pi + d, d)
 
-        actions = [k]
+        actions = []
         actions.append([0,0,0]) #action at 0 index is the "do nothing" action
         
         for phi in phi_vals:
@@ -72,13 +72,18 @@ class SwarmEnv:
 
     def _observing_environment(self):
         # Each agent observes its position + relative goal + nearest neighbor
-        observations = []
+        observations = np.zeros([self.n_agents, self.observation_dimension])
+
+        observations[:, 0:3] = self.positions
+        observations[:, 3:6] = self.goal - self.positions
+
         for agent_id in range(self.n_agents):
-            current_position = self.positions[agent_id]
-            relative_goal = self.goal[agent_id] - current_position
-            distances = np.linalg.norm(self.positions - current_position, axis=1)
-            nearest = self.positions[np.argsort(distances)[1:self.visible_neighbor_amount + 1]] - current_position  # skip itself
-            observations.append(np.concatenate([current_position, relative_goal, *nearest]))
+            # current_position = self.positions[agent_id]
+            # relative_goal = self.goal[agent_id] - current_position
+            distances = np.linalg.norm(self.positions - self.positions[agent_id], axis=1)
+            nearest = self.positions[np.argsort(distances)[1:self.visible_neighbor_amount + 1]] - self.positions[agent_id]  # skip itself
+            # observations.append(np.concatenate([current_position, relative_goal, *nearest]))
+            observations[agent_id, 6:observations.shape[1]] = np.array([*nearest])
         return np.array(observations, dtype=np.float32)
 
     def step(self, actions, goal_error_tolerance=-1, collision_error_tolerance=-1):

@@ -5,6 +5,7 @@ import random
 import numpy as np
 
 network_width = 512
+alpha = 0.01
 # ------------------------------
 # 2. DQN Model
 # ------------------------------
@@ -13,17 +14,17 @@ class DQN(nn.Module):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(alpha), # it's good here because of it can prevent dead neuron but not because of it handle negative value input
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(alpha),
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(alpha),
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(alpha),
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(alpha),
             nn.Linear(network_width, network_width),
-            nn.ReLU(),
+            nn.LeakyReLU(alpha),
             nn.Linear(network_width, action_dim)
         )
 
@@ -110,7 +111,7 @@ class Agent:
         s_normalized = self.normalize_states(s_np)
         s2_normalized = self.normalize_states(s2_np)
 
-        s = torch.tensor(s_normalized, dktype=torch.float32, device=self.device)
+        s = torch.tensor(s_normalized, dtype=torch.float32, device=self.device)
         a = torch.tensor(a, dtype=torch.int64, device=self.device).unsqueeze(1)
         r = torch.tensor(r, dtype=torch.float32, device=self.device).unsqueeze(1)
         s2 = torch.tensor(s2_normalized, dtype=torch.float32, device=self.device)
@@ -120,9 +121,9 @@ class Agent:
             q_target = r + self.gamma * self.target(s2).max(1, keepdim=True)[0]
 
         loss = nn.functional.mse_loss(q, q_target)
-        self.optimizer.zero_grad(k)
+        self.optimizer.zero_grad()
         loss.backward()
-        self.optimizekr.step()
+        self.optimizer.step()
 
     def update_target(self):
         """Performs soft update of the target network's weights."""
