@@ -1,5 +1,6 @@
 import numpy as np
-
+from scipy.spatial.distance import cdist
+print("hello")
 
 # ------------------------------
 # 1. Simple 3D Swarm Environment
@@ -140,7 +141,6 @@ class SwarmEnv:
         #check global done status
         done = np.sum(self.done) == self.n_agents
 
-        from scipy.spatial.distance import cdist
         #collision penalty using distance matrix, more efficient method
         distance_matrix = cdist(next_positions, next_positions)
 

@@ -38,15 +38,15 @@ training_steps = 1000
 episodes_length = 300
 save_flag = 128
 
-epsilon_decay = 0.995 # action randomness decay rate
-
-epsilon_min = 0.05 # minimum epsilon
-
-env.goal_reward = 100.0
-env.collision_reward = -8.0
-env.step_reward = -0.2
-
-env.distance_reward_factor = 25 # how much nearest neighbor evey agent can visit
+# epsilon_decay = 0.995 # action randomness decay rate
+#
+# epsilon_min = 0.05 # minimum epsilon
+#
+# env.goal_reward = 100.0
+# env.collision_reward = -8.0
+# env.step_reward = -0.2
+#
+# env.distance_reward_factor = 25
 
 agent.model.eval()
 agent.target.eval()
@@ -60,4 +60,4 @@ agent.target.eval()
 # agent.model.load_state_dict(torch.load("swarm_agent_model.pth"))
 # agent.target.load_state_dict(torch.load("swarm_target_model.pth"))
 
-visualize_swarm(agent, env, steps=500, save=False, goal_error_tolerance=goal_error_tolerance, collision_error_tolerance = collision_error_tolerance)
+visualize_swarm(agent, env, steps=500, save=True, goal_error_tolerance=goal_error_tolerance, collision_error_tolerance = collision_error_tolerance)
