@@ -5,6 +5,7 @@ from SwarmEnvironment import *
 from SwarmAgent import *
 import numpy
 
+
 # ------------------------------
 # 4. Training Loop
 # ------------------------------
@@ -16,8 +17,8 @@ manual_selected_device = "cuda"
 n_agents = 10
 visible_neighbor_amount = 1
 space_size = 20
-angular_displacement = 30
-linear_displacement = 0.5
+angular_displacement = 15
+linear_displacement = 0.25
 goal_error_tolerance = 1
 collision_error_tolerance = 0.7
 env = SwarmEnv(n_agents=n_agents, space_size=space_size, angular_displacement=angular_displacement,
@@ -29,6 +30,7 @@ print(env.action_amount)
 agent.gamma = 0.95  # q learning gamma, learning rate
 agent.epsilon = 1.0  # action randomness 1 for fully random
 agent.batch_size = 64
+agent.replay_buffer_size = 1000000
 
 epsilon_decay = 0.995  # action randomness decay rate
 epsilon_min = 0.05  # minimum epsilon
@@ -39,7 +41,7 @@ env.distance_reward_factor = 25
 env.step_reward = -0.2
 
 training_steps = 1000
-episodes_length = 200
+episodes_length = 400
 
 total_rewards = np.zeros(training_steps)
 epsilons = np.zeros(training_steps)
@@ -90,3 +92,4 @@ total_time = time.time() - total_time_start
 print(f"Total training time {total_time:.5f}s")
 torch.save(agent.model.state_dict(), "swarm_agent_model.pth")
 torch.save(agent.target.state_dict(), "swarm_target_model.pth")
+

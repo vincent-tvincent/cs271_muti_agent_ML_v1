@@ -1,5 +1,5 @@
 import os
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+# os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 import time
 
 import torch
@@ -17,8 +17,8 @@ space_size = 20
 visible_neighbor_amount = 1
 goal_error_tolerance = 1 # to goal
 collision_error_tolerance = 0.7
-linear_displacement = 0.5
-angular_displacement = 30
+linear_displacement = 0.25
+angular_displacement = 15
 
 
 env = SwarmEnv(n_agents=n_agents, space_size=space_size, linear_displacement=linear_displacement, angular_displacement=angular_displacement, visible_neighbor_amount=visible_neighbor_amount)

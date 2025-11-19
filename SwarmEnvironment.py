@@ -83,7 +83,7 @@ class SwarmEnv:
             distances = np.linalg.norm(self.positions - self.positions[agent_id], axis=1)
             nearest = self.positions[np.argsort(distances)[1:self.visible_neighbor_amount + 1]] - self.positions[agent_id]  # skip itself
             # observations.append(np.concatenate([current_position, relative_goal, *nearest]))
-            observations[agent_id, 6:observations.shape[1]] = np.array([*nearest])
+            observations[agent_id, 6:self.observation_dimension] = nearest.flatten()
         return np.array(observations, dtype=np.float32)
 
     def step(self, actions, goal_error_tolerance=-1, collision_error_tolerance=-1):

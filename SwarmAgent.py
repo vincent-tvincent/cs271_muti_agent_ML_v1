@@ -55,7 +55,7 @@ class Agent:
         self.epsilon = 1.0
         self.action_dim = action_dim
         self.max_coord = max_coord
-        self.replay_buffer_size = 10000
+        self.replay_buffer_size = 100000
         
     #i normalized the coordinates as they get put into the agent, im not sure its necessary or helpful at all but i did it anyway
     
