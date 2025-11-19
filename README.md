@@ -15,7 +15,8 @@ agents influence by is neighbor's behavior, two tasks todo: 1. add neighbor's go
 1. revising from another contributor working (see git history), training loop speed up 50%, and with the soft update of target network, training result become stable 
 2. under relatively small range of output actions, the model converge well, but with large scale (fro 85 output actions increase to 337 output actions), the agents again stuck in the middle of its way 
 3. the current method of generating action set may create duplicate actions, negatively impact the even distribution of policy 
-4. need to exam overfitting later, not sure if have it for now 
+4. need to exam overfitting later, not sure if have it for now
+5. jupyter notebook not working very well on pycharm ... 
     #### todo 
     1. someone try to implement logic of cut the episode once the agent start to "stuck" (shaking around it's position)
     2. someone should responsible for testing the agent's behavior and summerize it so that others can know what to tune
