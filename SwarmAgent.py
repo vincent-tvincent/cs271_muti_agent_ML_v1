@@ -110,7 +110,7 @@ class Agent:
         s_normalized = self.normalize_states(s_np)
         s2_normalized = self.normalize_states(s2_np)
 
-        s = torch.tensor(s_normalized, dtype=torch.float32, device=self.device)
+        s = torch.tensor(s_normalized, dktype=torch.float32, device=self.device)
         a = torch.tensor(a, dtype=torch.int64, device=self.device).unsqueeze(1)
         r = torch.tensor(r, dtype=torch.float32, device=self.device).unsqueeze(1)
         s2 = torch.tensor(s2_normalized, dtype=torch.float32, device=self.device)
@@ -120,9 +120,9 @@ class Agent:
             q_target = r + self.gamma * self.target(s2).max(1, keepdim=True)[0]
 
         loss = nn.functional.mse_loss(q, q_target)
-        self.optimizer.zero_grad()
+        self.optimizer.zero_grad(k)
         loss.backward()
-        self.optimizer.step()
+        self.optimizekr.step()
 
     def update_target(self):
         """Performs soft update of the target network's weights."""

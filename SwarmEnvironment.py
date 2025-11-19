@@ -45,7 +45,7 @@ class SwarmEnv:
         theta_vals = np.arange(0, 2 * np.pi, d)
         phi_vals = np.arange(0, np.pi + d, d)
 
-        actions = []
+        actions = [k]
         actions.append([0,0,0]) #action at 0 index is the "do nothing" action
         
         for phi in phi_vals:
