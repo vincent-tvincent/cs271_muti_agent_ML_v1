@@ -12,7 +12,7 @@ agents influence by is neighbor's behavior, two tasks todo: 1. add neighbor's go
 5. the agents should have ability to move around 
 
 ### note 19/11
-1. revising from another contributor working (see git history), with the soft update of target network, training result become stable
+1. revising from another contributor working (see git history), 50% faster, with the soft update of target network, training result become stable
 2. under relatively small range of output actions, the model converge well, but with large scale (fro 85 output actions increase to 337 output actions), the agents again stuck in the middle of its way 
 3. the current method of generating action set may create duplicate actions, negatively impact the even distribution of policy 
 4. need to exam overfitting later, not sure if have it for now
