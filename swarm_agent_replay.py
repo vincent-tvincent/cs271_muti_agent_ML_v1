@@ -60,4 +60,4 @@ agent.target.eval()
 # agent.model.load_state_dict(torch.load("swarm_agent_model.pth"))
 # agent.target.load_state_dict(torch.load("swarm_target_model.pth"))
 
-visualize_swarm(agent, env, steps=500, save=True, goal_error_tolerance=goal_error_tolerance, collision_error_tolerance = collision_error_tolerance)
+visualize_swarm(agent, env, steps=300, save=True, goal_error_tolerance=goal_error_tolerance, collision_error_tolerance = collision_error_tolerance)

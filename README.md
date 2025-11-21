@@ -27,7 +27,7 @@ agents influence by is neighbor's behavior, two tasks todo: 1. add neighbor's go
 
    ![swarm animation](successful_models_and_replay/21_11_2025_335_out_1nb/swarm_simulation_normal.gif)
 2. the action set generation is still wrong, although the neural network can fix itself, but to make it correct is still reasonable since it can eliminate bias on action selection
-3. experimenting if it's good for add a panely relative to it's neighbor (the last one is shaking)
+3. experimenting if it's good for add a panely relative to it's neighbor (the last one is shaking at the end, but blocking occured less)
 
 
 # TODO 
