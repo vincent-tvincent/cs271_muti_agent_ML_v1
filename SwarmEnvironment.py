@@ -142,6 +142,7 @@ class SwarmEnv:
         neighbors_norm_before = np.linalg.norm(observations_before_move[:, 6:9], axis=1)
         neighbors_norm_after = np.linalg.norm(observations_after_move[:, 6:9], axis=1)
         approach_neighbor_rewards = (neighbors_norm_after - neighbors_norm_before) * self.neighbor_approach_reward_factor
+        approach_neighbor_rewards *= approach_neighbor_rewards <= 0
 
         #apply distance reward only to active agents
         rewards += (

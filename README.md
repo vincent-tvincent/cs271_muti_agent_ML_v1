@@ -23,8 +23,15 @@ agents influence by is neighbor's behavior, two tasks todo: 1. add neighbor's go
 
 ### note 20/11
 1. able to train stable model, successful model data is stored in the folder successful_model_and_replay
+   result:
+
+   ![swarm animation](successful_models_and_replay/21_11_2025_335_out_1nb/swarm_simulation_normal.gif)
 2. the action set generation is still wrong, although the neural network can fix itself, but to make it correct is still reasonable since it can eliminate bias on action selection
-3. experimenting if it's good for add a panely relative to it's neighbor 
+3. experimenting if it's good for add a panely relative to it's neighbor (the last one is shaking)
+
+
+# TODO 
+someone please try fix the generate action set, the current generating function produce a lot of overlap actions (for example, it contains a lot of duplicate (0,0,1) actions), which is a mathematical issue
 
 ![Swarm animation](swarm_simulation_normal.gif)
 

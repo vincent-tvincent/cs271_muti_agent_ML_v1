@@ -30,13 +30,13 @@ print(env.action_amount)
 agent.gamma = 0.95  # q learning gamma, learning rate
 agent.epsilon = 1.0  # action randomness 1 for fully random
 agent.batch_size = 128
-agent.replay_buffer_size = 2500000
+agent.replay_buffer_size = 3000000
 
 epsilon_decay = 0.995  # action randomness decay rate
 epsilon_min = 0.05  # minimum epsilon
 
 env.goal_reward = 200.0
-env.collision_reward = -20.0
+env.collision_reward = -50.0
 env.distance_reward_factor = 25.0
 env.neighbor_approach_reward_factor = 10.0 # experimenting
 env.step_reward = -0.2
