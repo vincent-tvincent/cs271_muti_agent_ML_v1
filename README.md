@@ -21,6 +21,10 @@ agents influence by is neighbor's behavior, two tasks todo: 1. add neighbor's go
     1. someone try to implement logic of cut the episode once the agent start to "stuck" (shaking around it's position)
     2. someone should responsible for testing the agent's behavior and summerize it so that others can know what to tune
 
+### note 20/11
+1. able to train stable model, successful model data is stored in the folder successful_model_and_replay
+2. the action set generation is still wrong, although the neural network can fix itself, but to make it correct is still reasonable since it can eliminate bias on action selection
+3. experimenting if it's good for add a panely relative to it's neighbor 
 
 ![Swarm animation](swarm_simulation_normal.gif)
 

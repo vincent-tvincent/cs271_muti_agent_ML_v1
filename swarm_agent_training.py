@@ -29,18 +29,19 @@ agent = Agent(state_dim=env.observation_dimension - 3, action_dim=env.action_amo
 print(env.action_amount)
 agent.gamma = 0.95  # q learning gamma, learning rate
 agent.epsilon = 1.0  # action randomness 1 for fully random
-agent.batch_size = 64
-agent.replay_buffer_size = 1000000
+agent.batch_size = 128
+agent.replay_buffer_size = 2500000
 
 epsilon_decay = 0.995  # action randomness decay rate
 epsilon_min = 0.05  # minimum epsilon
 
-env.goal_reward = 100.0
-env.collision_reward = -8.0
-env.distance_reward_factor = 25
+env.goal_reward = 200.0
+env.collision_reward = -20.0
+env.distance_reward_factor = 25.0
+env.neighbor_approach_reward_factor = 10.0 # experimenting
 env.step_reward = -0.2
 
-training_steps = 1000
+training_steps = 2000
 episodes_length = 400
 
 total_rewards = np.zeros(training_steps)
@@ -86,7 +87,10 @@ for episode in range(training_steps):
     # print(f"Episode {episode}, average total reward {total_reward:.2f}, eps {agent.epsilon:.2f}")
 
     print(
-        f"Episode {episode + 1}, steps {step + 1:.0f} (done: {env.done_count / n_agents * 100.0:.3f}% collision: {env.collision_count:.0f}), Average total reward {total_reward:.5f}, epsilon {agent.epsilon:.5f} time {delta_time:.5f}s")
+        f"Episode {episode + 1}, steps {step + 1:.0f} (done: {env.done_count / n_agents * 100.0:.3f}% "
+        f"collision: {env.collision_count:.0f}), Average total reward {total_reward:.5f}, epsilon {agent.epsilon:.5f}, "
+        f"replay buffer usage {float(len(agent.replay)) / float(agent.replay_buffer_size) * 100.0: .5f}%,"
+        f"  time {delta_time:.5f}s")
 
 total_time = time.time() - total_time_start
 print(f"Total training time {total_time:.5f}s")

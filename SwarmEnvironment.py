@@ -16,6 +16,7 @@ class SwarmEnv:
         self.goal_reward = 1.0
         self.collision_reward = -1.0
         self.distance_reward_factor = 2.0
+        self.neighbor_approach_reward_factor = 0.5
         self.visible_neighbor_amount = visible_neighbor_amount
         self.step_reward = -1.0
 
@@ -137,11 +138,20 @@ class SwarmEnv:
         norm_after = np.linalg.norm(observations_after_move[:, 3:6], axis=1)
         distance_rewards = (norm_before - norm_after) * self.distance_reward_factor
 
-        #apply distance reward only to active agents
-        rewards += distance_rewards * active_agents_mask
+        #calculate distance reward for approaching or leave the nearest neighbor
+        neighbors_norm_before = np.linalg.norm(observations_before_move[:, 6:9], axis=1)
+        neighbors_norm_after = np.linalg.norm(observations_after_move[:, 6:9], axis=1)
+        approach_neighbor_rewards = (neighbors_norm_after - neighbors_norm_before) * self.neighbor_approach_reward_factor
 
-        #apply step penalty only to active agents
-        rewards += self.step_reward * active_agents_mask
+        #apply distance reward only to active agents
+        rewards += (
+                           distance_rewards +
+                           approach_neighbor_rewards +
+                           self.step_reward
+                    ) * active_agents_mask
+
+        # #apply step penalty only to active agents
+        # rewards += self.step_reward * active_agents_mask
 
         #check global done status
         done = np.sum(self.done) == self.n_agents
