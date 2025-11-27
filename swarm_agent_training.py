@@ -19,8 +19,8 @@ visible_neighbor_amount = 1
 space_size = 20
 angular_displacement = 15
 linear_displacement = 0.25
-goal_error_tolerance = 1
-collision_error_tolerance = 0.7
+goal_error_tolerance = 0.5
+collision_error_tolerance = 0.25
 env = SwarmEnv(n_agents=n_agents, space_size=space_size, angular_displacement=angular_displacement,
                linear_displacement=linear_displacement, visible_neighbor_amount=visible_neighbor_amount)
 env.set_random_goals()
@@ -42,7 +42,7 @@ env.neighbor_approach_reward_factor = 10.0 # experimenting
 env.step_reward = -0.2
 
 training_steps = 2000
-episodes_length = 256
+episodes_length = 400
 
 total_rewards = np.zeros(training_steps)
 epsilons = np.zeros(training_steps)
@@ -84,6 +84,7 @@ for episode in range(training_steps):
     epsilons[episode] = delta_time
     time_spend[episode] = delta_time
     agent.epsilon = max(epsilon_min, agent.epsilon * epsilon_decay)
+    episodes_length = (episodes_length + step) / 2
     # print(f"Episode {episode}, average total reward {total_reward:.2f}, eps {agent.epsilon:.2f}")
 
     print(
