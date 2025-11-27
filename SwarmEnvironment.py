@@ -39,7 +39,6 @@ class SwarmEnv:
         self.reset()
 
     def _generate_action_set(self, n=1.0, d=22.5, degrees=True):
-
         if degrees:
             d = np.deg2rad(d)
 
@@ -47,17 +46,28 @@ class SwarmEnv:
         phi_vals = np.arange(0, np.pi + d, d)
 
         actions = []
-        actions.append([0,0,0]) #action at 0 index is the "do nothing" action
-        
+        actions.append([0, 0, 0])   # action 0 = stop
+
         for phi in phi_vals:
             for theta in theta_vals:
-                # Convert spherical to Cartesian
-                x = n * np.sin(phi) * np.cos(theta)
-                y = n * np.sin(phi) * np.sin(theta)
-                z = n * np.cos(phi)
-                actions.append([x, y, z])
-        return np.array(actions)
+                x = np.sin(phi) * np.cos(theta)
+                y = np.sin(phi) * np.sin(theta)
+                z = np.cos(phi)
+                vec = np.array([x, y, z])
 
+                # Normalize then scale by movement distance
+                vec = vec / (np.linalg.norm(vec) + 1e-8)
+                vec = vec * n
+
+                actions.append(vec.tolist())
+
+        # Deduplicate by rounding
+        actions = np.array(actions)
+        actions_rounded = np.round(actions, 3)
+        _, idx = np.unique(actions_rounded, axis=0, return_index=True)
+        actions = actions[idx]
+
+        return actions
 
     def set_random_goals(self):
         self.goal = np.random.randint(0, self.space_size, size=self.goal.shape)
