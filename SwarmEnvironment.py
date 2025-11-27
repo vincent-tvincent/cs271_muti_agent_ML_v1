@@ -101,9 +101,9 @@ class SwarmEnv:
         # actions: [n_agents] discrete
         deltas = self.action_set
 
-        for agent_id in range(self.n_agents):
-            if self.done[agent_id] == 1:
-                actions[agent_id] = 0
+        # for agent_id in range(self.n_agents):
+        #     if self.done[agent_id] == 1:
+        #         actions[agent_id] = 0
 
 
         next_positions = self.positions + deltas[actions]
@@ -131,8 +131,8 @@ class SwarmEnv:
             is_at_goal = np.all(is_close_per_dim, axis=1)
 
         #create a mask for agents that were not done before this step and are now done
-        newly_done_mask = (1-self.done.astype(int)) * is_at_goal
-
+        # newly_done_mask = (1-self.done.astype(int)) * is_at_goal
+        newly_done_mask = is_at_goal
         #apply goal reward using the mask
         rewards += newly_done_mask * self.goal_reward
 

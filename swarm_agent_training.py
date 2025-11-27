@@ -42,7 +42,7 @@ env.neighbor_approach_reward_factor = 10.0 # experimenting
 env.step_reward = -0.2
 
 training_steps = 2000
-episodes_length = 400
+episodes_length = 256
 
 total_rewards = np.zeros(training_steps)
 epsilons = np.zeros(training_steps)

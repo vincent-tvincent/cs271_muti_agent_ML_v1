@@ -29,9 +29,14 @@ agents influence by is neighbor's behavior, two tasks todo: 1. add neighbor's go
 2. the action set generation is still wrong, although the neural network can fix itself, but to make it correct is still reasonable since it can eliminate bias on action selection
 3. experimenting if it's good for add a panely relative to it's neighbor (the last one is shaking at the end, but blocking occured less)
 
+### note 27/11
+1. new contributer fixed the duplicate action problem (see branch history for details)
+2. removed the logic of stick the agent in place after reach goal, thus the agents able to learn to "stop" after reaching goal 
+3. it able to approaching to agent in given time 
+4. next step: make it behave more stable after get close enough to goal 
 
 # TODO 
-someone please try fix the generate action set, the current generating function produce a lot of overlap actions (for example, it contains a lot of duplicate (0,0,1) actions), which is a mathematical issue
+(solved) someone please try fix the generate action set, the current generating function produce a lot of overlap actions (for example, it contains a lot of duplicate (0,0,1) actions), which is a mathematical issue
 
 ![Swarm animation](swarm_simulation_normal.gif)
 

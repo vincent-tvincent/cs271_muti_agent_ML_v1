@@ -25,6 +25,8 @@ class DQN(nn.Module):
             nn.LeakyReLU(alpha),
             nn.Linear(network_width, network_width),
             nn.LeakyReLU(alpha),
+            nn.Linear(network_width, network_width),
+            nn.LeakyReLU(alpha),
             nn.Linear(network_width, action_dim)
         )
 

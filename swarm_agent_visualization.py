@@ -15,14 +15,15 @@ def visualize_swarm(agent, env, steps=50, save=False, goal_error_tolerance = 1, 
     agent.epsilon = 0.0
     obs = env.reset()
     positions_history = [env.positions.copy()]
-
+    print("stepping")
     for _ in range(steps):
         actions = [agent.select_action(o) for o in obs]
         obs, _, done, _ = env.step(actions, goal_error_tolerance=goal_error_tolerance, collision_error_tolerance=collision_error_tolerance)
         positions_history.append(env.positions.copy())
         if done:
             break
-
+    print("stepping complete")
+    print("plotting")
     positions_history = np.array(positions_history)  # shape: [T, n_agents, 3]
     n_steps, n_agents, _ = positions_history.shape
 
