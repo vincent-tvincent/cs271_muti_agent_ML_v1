@@ -94,7 +94,7 @@ def visualize_swarm(agent, env, steps=50, save=False, goal_error_tolerance = 1, 
     # A) SAVE FOUR VIEWS AS GIFS
     # ------------------------------------------------
     if save:
-        make_animation("normal", elev=30, azim=45)
+        make_animation("normal", elev=env.space_size + 10, azim=45)
         make_animation("xy", elev=90, azim=-90)
         make_animation("xz", elev=0, azim=-90)
         make_animation("yz", elev=0, azim=0)
