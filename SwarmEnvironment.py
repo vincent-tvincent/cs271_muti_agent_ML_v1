@@ -107,6 +107,12 @@ class SwarmEnv:
 
 
         next_positions = self.positions + deltas[actions]
+
+        # force agents that have reached their goal to stay in place
+        for agent_id in range(self.n_agents):
+            if self.done[agent_id] == 1:
+                next_positions[agent_id] = self.positions[agent_id]
+
         next_positions = np.clip(next_positions, 0, self.space_size - 1)
 
         # measure before move
