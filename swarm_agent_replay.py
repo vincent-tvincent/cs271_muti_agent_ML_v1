@@ -12,7 +12,7 @@ load_model = True
 numpy.random.seed(20)
 manual_selected_device = torch.device("cuda")
 
-n_agents = 20
+n_agents = 40
 space_size = 20
 visible_neighbor_amount = 1
 goal_error_tolerance = 0.5 # to goal
