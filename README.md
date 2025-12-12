@@ -1,6 +1,6 @@
 # future work direction 1: adding static obsticles to the space 
 
-[future work](https://github.com/QAQWillQwQ/271_AI_project.git) this repo is trying to add more static obstacles to the environment for traing the agents avoiding obstacles at the mean time of avoiding collision with other agents 
+[future work](https://github.com/QAQWillQwQ/271_AI_project.git) this repo is trying to add more static and moving obstacles to the environment for traing the agents avoiding obstacles at the mean time of avoiding collision with other agents 
 
 # developing notes
 ### note 12/11
