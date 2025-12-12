@@ -3,7 +3,7 @@
 [future work](https://github.com/QAQWillQwQ/271_AI_project.git) this repo is trying to add more static obstacles to the environment for traing the agents avoiding obstacles at the mean time of avoiding collision with other agents 
 
 # developing notes
-## note 12/11
+### note 12/11
 agent prefer to stack on the top of the space for prevent collision, need to eliminate it's way to gain high score without reaching goal
 ### note 15/11
 agents influence by is neighbor's behavior, two tasks todo: 1. add neighbor's goal to its observation 2. replace the environment step to matrix operations for speed up training
